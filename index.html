@@ -270,7 +270,7 @@
           <div class="filter-wrap">
             <button class="filter-btn active-misc" onclick="setFilter('Todos',this)">Todos</button>
             <button class="filter-btn" onclick="setFilter('Misceláneo',this)">Misceláneo</button>
-            <button class="filter-btn" onclick="setFilter('Swordman',this)">Swordman</button>
+            <button class="filter-btn" onclick="setFilter('Swordman',this)">Set</button>
           </div>
         </div>
         <div class="catalog-scroll">
@@ -362,8 +362,9 @@ const ITEMS = [
   { id:'o_thu2',    name:'OCEANUS THUNDER',     price:5000,  cat:'Swordman',   img:'OCEANUS THUNDER2.jpg',    color:'#b06cff' },
 ];
 
-const EVENT_START = new Date('2026-05-05T00:00:00');
-const EVENT_END   = new Date('2026-06-03T23:59:59');
+// Perú = UTC-5 → sumamos 5h a UTC para representar medianoche Peru
+const EVENT_START = new Date('2026-05-05T05:00:00Z');
+const EVENT_END   = new Date('2026-06-04T04:59:59Z');
 
 let bonusCreatures = 3;
 let quinteroMult   = 1;
