@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rakion Ducks · Planner 30 Días</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #050d0d; color: #ccc; font-family: 'Rajdhani', sans-serif; min-height: 100vh; }
+
+  .app { padding: 20px; }
+  .inner { max-width: 1140px; margin: 0 auto; }
+
+  /* HEADER */
+  .header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #1a3a3a; padding-bottom: 20px; margin-bottom: 24px; }
+  .header-title { font-family: 'Orbitron', sans-serif; font-size: 20px; font-weight: 900; color: #00e5cc; letter-spacing: 0.1em; text-transform: uppercase; text-shadow: 0 0 20px rgba(0,229,204,0.4); display: flex; align-items: center; gap: 8px; }
+  .header-sub { color: #3a6060; font-size: 12px; font-family: 'Share Tech Mono', monospace; margin-top: 4px; }
+  .header-sub span { color: #00e5cc; }
+  .header-stats { display: flex; gap: 24px; align-items: center; background: #071212; border: 1px solid #1a3a3a; border-radius: 8px; padding: 12px 20px; }
+  .stat-block { text-align: center; }
+  .stat-label { display: block; color: #3a6060; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+  .stat-val { font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; color: #fff; }
+  .stat-val.teal { color: #00e5cc; }
+  .stat-val small { color: #3a6060; font-size: 12px; }
+  .stat-divider { width: 1px; height: 40px; background: #1a3a3a; }
+
+  /* LAYOUT */
+  .layout { display: grid; grid-template-columns: 280px 1fr; gap: 20px; align-items: start; }
+  @media(max-width:800px){ .layout { grid-template-columns: 1fr; } }
+
+  /* SIDEBAR */
+  .panel { background: #071212; border: 1px solid #1a3a3a; border-radius: 8px; padding: 20px; }
+  .panel-title { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: #ccc; text-transform: uppercase; display: flex; align-items: center; gap: 8px; margin-bottom: 20px; color: #00e5cc; }
+  .control-box { background: #050d0d; border: 1px solid #102020; border-radius: 6px; padding: 12px; margin-bottom: 20px; }
+  .ctrl-label { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 8px; }
+  .ctrl-label span { color: #00e5cc; font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 900; }
+  input[type=range] { width: 100%; accent-color: #00e5cc; }
+  .range-hints { display: flex; justify-content: space-between; font-size: 9px; color: #3a6060; font-family: 'Share Tech Mono', monospace; margin-top: 4px; }
+  .creature-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 8px; display: block; }
+  .creature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 8px; }
+  .creature-btn { padding: 8px 0; border-radius: 4px; border: 1px solid #1a3a3a; background: #0a1e1e; color: #888; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.15s; }
+  .creature-btn.active { background: #00e5cc; border-color: #00e5cc; color: #000; }
+  .pts-info { background: #050d0d; border-radius: 4px; padding: 8px; font-size: 11px; color: #3a8080; font-family: 'Share Tech Mono', monospace; }
+  .pts-info b { color: #00e5cc; }
+  .pts-divider { border-top: 1px solid #1a3a3a; padding-top: 16px; margin-top: 4px; }
+  .pts-input-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #888; margin-bottom: 8px; display: block; }
+  .pts-input { width: 100%; background: #050d0d; border: 1px solid #1a3a3a; border-radius: 6px; padding: 10px 12px; color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 18px; outline: none; transition: border-color 0.15s; }
+  .pts-input:focus { border-color: #00e5cc; }
+
+  /* DAILY GOAL BOX */
+  .goal-box { border-radius: 8px; padding: 20px; margin-top: 16px; background: linear-gradient(135deg, #00e5cc 0%, #00a896 100%); box-shadow: 0 8px 30px rgba(0,229,204,0.25); color: #000; }
+  .goal-box.ended { background: #111; box-shadow: none; color: #555; }
+  .goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .goal-badge { background: rgba(0,0,0,0.2); padding: 3px 8px; border-radius: 3px; font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; }
+  .goal-num { font-family: 'Orbitron', sans-serif; font-size: 52px; font-weight: 900; line-height: 1; }
+  .goal-desc { font-size: 11px; font-weight: 700; text-transform: uppercase; opacity: 0.7; margin-top: 6px; }
+  .goal-details { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.15); font-size: 10px; font-weight: 700; text-transform: uppercase; opacity: 0.7; }
+  .goal-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+
+  /* CATALOG */
+  .section { background: #071212; border: 1px solid #1a3a3a; border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+  .section-head { padding: 12px 16px; border-bottom: 1px solid #1a3a3a; background: rgba(0,229,204,0.03); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .section-title { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: #ccc; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .filter-wrap { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-btn { background: #0a1e1e; border: 1px solid #1a3a3a; color: #888; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.15s; }
+  .filter-btn:hover { border-color: #1e6060; color: #ccc; }
+  .filter-btn.active-misc { background: #0d3030; border-color: #00e5cc; color: #00e5cc; }
+  .filter-btn.active-sword { background: #1a0a30; border-color: #b06cff; color: #b06cff; }
+
+  .catalog-scroll { max-height: 430px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #1a4a4a #050d0d; }
+  .catalog-scroll::-webkit-scrollbar { width: 4px; }
+  .catalog-scroll::-webkit-scrollbar-track { background: #050d0d; }
+  .catalog-scroll::-webkit-scrollbar-thumb { background: #1a4a4a; border-radius: 2px; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 12px; }
+
+  /* ITEM CARD — game style */
+  .item-card {
+    background: linear-gradient(180deg, #0a1a1a 0%, #071212 100%);
+    border: 1px solid #1a4a4a;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s ease;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .item-card.sword { border-color: #4a2080; }
+  .item-card:hover { transform: translateY(-2px); }
+  .item-card:not(.sword):hover { border-color: #00e5cc; box-shadow: 0 8px 20px rgba(0,229,204,0.2); }
+  .item-card.sword:hover { border-color: #b06cff; box-shadow: 0 8px 20px rgba(176,108,255,0.25); }
+
+  .card-img {
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #051a1a 0%, #0a2e2e 50%, #041212 100%);
+  }
+  .card-img.sword { background: linear-gradient(135deg, #12062a 0%, #1e0a3d 50%, #0a0518 100%); }
+  .card-grid-overlay {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,204,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,204,0.04) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .card-grid-overlay.sword {
+    background-image:
+      linear-gradient(rgba(176,108,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(176,108,255,0.04) 1px, transparent 1px);
+  }
+  .card-corner {
+    position: absolute; top: 0; right: 0;
+    width: 22px; height: 22px;
+    border-left: 1px solid #1e6060;
+    border-bottom: 1px solid #1e6060;
+  }
+  .card-corner.sword { border-left-color: #6030aa; border-bottom-color: #6030aa; }
+  .card-emoji { position: relative; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
+  .card-real-img { position: relative; width: 100%; height: 100%; object-fit: contain; display: block; padding: 6px; }
+  .card-emoji-fallback { position: relative; font-size: 36px; }
+
+  .card-info { padding: 8px 10px 10px; }
+  .card-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; color: #4ecdc4; margin-bottom: 5px; line-height: 1.25; }
+  .card-name.sword { color: #b06cff; }
+  .card-price { display: flex; align-items: center; gap: 5px; }
+  .red-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ff3333; box-shadow: 0 0 4px #ff3333; flex-shrink: 0; }
+  .price-val { color: #fff; font-family: monospace; font-weight: 700; font-size: 12px; }
+  .price-val small { color: #888; font-size: 10px; font-weight: 400; }
+  .card-plus {
+    position: absolute; bottom: 8px; right: 8px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(0,229,204,0.15); border: 1px solid #1e6060;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #4ecdc4; line-height: 1;
+  }
+  .card-plus.sword { background: rgba(176,108,255,0.15); border-color: #6030aa; color: #b06cff; }
+
+  /* SELECTED */
+  .selected-section { background: #071212; border: 1px solid #1a3a3a; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .sel-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+  .sel-title { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: #ccc; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+  .sel-total { color: #00e5cc; font-family: 'Share Tech Mono', monospace; font-size: 14px; font-weight: 700; }
+  .clear-btn { background: none; border: none; color: #3a6060; cursor: pointer; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; transition: color 0.15s; font-family: 'Rajdhani', sans-serif; }
+  .clear-btn:hover { color: #ff4444; }
+  .empty-state { text-align: center; padding: 40px 20px; border: 2px dashed #1a3a3a; border-radius: 8px; color: #3a6060; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+  .selected-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+  .sel-item { display: flex; align-items: center; justify-content: space-between; background: #050d0d; border: 1px solid #1a3a3a; border-radius: 6px; padding: 8px 12px; }
+  .sel-item-left { display: flex; align-items: center; gap: 10px; }
+  .sel-emoji { font-size: 18px; }
+  .sel-name { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+  .sel-cat { font-size: 9px; color: #3a6060; text-transform: uppercase; font-weight: 700; }
+  .sel-right { display: flex; align-items: center; gap: 10px; }
+  .sel-price { color: #fff; font-family: 'Share Tech Mono', monospace; font-size: 12px; }
+  .remove-btn { background: none; border: none; color: #3a6060; cursor: pointer; padding: 4px; display: flex; align-items: center; transition: color 0.15s; font-size: 16px; }
+  .remove-btn:hover { color: #ff4444; }
+
+  /* ROADMAP */
+  .roadmap-section { background: #071212; border: 1px solid #1a3a3a; border-radius: 8px; padding: 20px; overflow-x: auto; margin-bottom: 16px; }
+  .roadmap-title { font-family: 'Orbitron', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; color: #ccc; text-transform: uppercase; margin-bottom: 16px; }
+  .roadmap-days { display: flex; gap: 4px; min-width: 840px; padding-bottom: 8px; }
+  .day-cell { flex: 1; min-width: 26px; border-radius: 4px; padding: 6px 2px; text-align: center; border: 1px solid #1a3a3a; background: #050d0d; transition: all 0.15s; }
+  .day-cell.past { background: transparent; border-color: #0a1a1a; opacity: 0.25; }
+  .day-cell.today { background: #00e5cc; border-color: #00e5cc; transform: scaleY(1.05); box-shadow: 0 4px 16px rgba(0,229,204,0.3); }
+  .day-label { font-size: 8px; font-weight: 900; color: #3a6060; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .day-cell.today .day-label { color: #000; }
+  .day-wins { font-size: 9px; font-family: 'Share Tech Mono', monospace; font-weight: 700; color: #00e5cc; line-height: 1.2; }
+  .day-cell.today .day-wins { color: #000; }
+  .day-check { font-size: 8px; color: #3a6060; }
+  .roadmap-foot { display: flex; justify-content: space-between; margin-top: 8px; font-size: 9px; color: #3a6060; font-family: 'Share Tech Mono', monospace; text-transform: uppercase; }
+
+  /* FOOTER INFO */
+  .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-bottom: 24px; }
+  @media(max-width:600px){ .footer-grid { grid-template-columns: 1fr; } }
+  .info-card { background: rgba(7,18,18,0.5); border: 1px solid #1a3a3a; border-radius: 6px; padding: 14px; display: flex; gap: 10px; }
+  .info-icon { flex-shrink: 0; margin-top: 2px; font-size: 16px; }
+  .info-title { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #ccc; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .info-text { font-size: 11px; color: #3a6060; }
+
+  /* ENDED BANNER */
+  .ended-banner { background: rgba(200,0,0,0.1); border: 1px solid rgba(200,0,0,0.4); border-radius: 8px; padding: 12px; text-align: center; color: #ff6666; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="inner">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div>
+      <div class="header-title">⚡ Rakion Ducks · Planner 30 Días</div>
+      <div class="header-sub">🕐 Hora Perú: <span id="clock">--:--</span> &nbsp;·&nbsp; <span>CIERRE: 03 JUNIO 23:59</span></div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-block">
+        <span class="stat-label">Días Restantes</span>
+        <span class="stat-val" id="daysRemaining">--</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-block">
+        <span class="stat-label">Wins Totales</span>
+        <span class="stat-val teal" id="totalWins">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div id="endedBanner" class="ended-banner" style="display:none">⚠️ El evento de 30 días ha finalizado ⚠️</div>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <div>
+      <div class="panel">
+        <div class="panel-title">⚙ Panel de Control</div>
+
+        <!-- Quintero -->
+        <div class="control-box">
+          <div class="ctrl-label">Bonos de Quintero <span id="quinteroVal">x1</span></div>
+          <input type="range" id="quinteroSlider" min="1" max="30" step="1" value="1" oninput="onQuintero(this.value)"/>
+          <div class="range-hints"><span>x1</span><span>x10</span><span>x20</span><span>x30</span></div>
+        </div>
+
+        <!-- Creatures -->
+        <div style="margin-bottom:20px">
+          <span class="creature-label">Combo de Criaturas</span>
+          <div class="creature-grid" id="creatureGrid">
+            <button class="creature-btn" onclick="setCreatures(0)">0</button>
+            <button class="creature-btn" onclick="setCreatures(1)">1</button>
+            <button class="creature-btn" onclick="setCreatures(2)">2</button>
+            <button class="creature-btn active" onclick="setCreatures(3)">3</button>
+          </div>
+          <div class="pts-info">ℹ Pts por win: <b id="ptsPerWin">7</b></div>
+        </div>
+
+        <!-- Points -->
+        <div class="pts-divider">
+          <span class="pts-input-label">Puntos ya acumulados</span>
+          <input type="number" id="initialPoints" class="pts-input" value="0" min="0" oninput="recalculate()"/>
+        </div>
+      </div>
+
+      <!-- DAILY GOAL -->
+      <div class="goal-box" id="goalBox" style="margin-top:16px">
+        <div class="goal-header">
+          <span style="font-size:20px">🎯</span>
+          <span class="goal-badge">Objetivo Hoy</span>
+        </div>
+        <div class="goal-num" id="dailyWins">0</div>
+        <div class="goal-desc">Wins necesarias hoy para cumplir tu meta</div>
+        <div class="goal-details" id="goalDetails">
+          <div class="goal-row"><span>Puntos Restantes</span><span id="ptRemaining">0</span></div>
+          <div class="goal-row"><span>Días Restantes</span><span id="daysLeft">-- / 30</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div>
+
+      <!-- CATALOG -->
+      <div class="section">
+        <div class="section-head">
+          <div class="section-title">🛒 Catálogo de Evento</div>
+          <div class="filter-wrap">
+            <button class="filter-btn active-misc" onclick="setFilter('Todos',this)">Todos</button>
+            <button class="filter-btn" onclick="setFilter('Misceláneo',this)">Misceláneo</button>
+            <button class="filter-btn" onclick="setFilter('Swordman',this)">Set</button>
+          </div>
+        </div>
+        <div class="catalog-scroll">
+          <div class="card-grid" id="cardGrid"></div>
+        </div>
+      </div>
+
+      <!-- SELECTED -->
+      <div class="selected-section">
+        <div class="sel-head">
+          <div class="sel-title">🏆 Premios Seleccionados (<span id="selCount">0</span>)</div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <span class="sel-total" id="selTotal" style="display:none"></span>
+            <button class="clear-btn" id="clearBtn" onclick="clearAll()" style="display:none">Borrar Todo</button>
+          </div>
+        </div>
+        <div id="emptyState" class="empty-state">Selecciona premios del catálogo para iniciar el cálculo</div>
+        <div class="selected-grid" id="selectedGrid"></div>
+      </div>
+
+      <!-- ROADMAP -->
+      <div class="roadmap-section">
+        <div class="roadmap-title">📅 Cronograma 30 Días · Día <span id="todayDay">1</span></div>
+        <div class="roadmap-days" id="roadmapDays"></div>
+        <div class="roadmap-foot">
+          <span>05 Mayo (Día 1)</span>
+          <span>03 Junio (Día 30)</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer-grid">
+    <div class="info-card">
+      <div class="info-icon" style="color:#00e5cc">ℹ</div>
+      <div>
+        <div class="info-title">Resumen de Puntos</div>
+        <div class="info-text">Base: <b id="footerPts" style="color:#00e5cc">7</b> pts por victoria. Fórmula: (1 × multiplicador) + (crías × 2).</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon" style="color:#00e5cc">🛡</div>
+      <div>
+        <div class="info-title">Meta de 30 Días</div>
+        <div class="info-text">El cálculo se reparte equitativamente en los días que te quedan hasta el 3 de junio.</div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-icon" style="color:#00e5cc">🕐</div>
+      <div>
+        <div class="info-title">Hora de Perú</div>
+        <div class="info-text">Cada día del evento finaliza puntualmente a las 23:59:59.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// img: ruta exacta al archivo en la carpeta images/
+// Los 3 últimos del set Swordman usan el nombre alternativo (OCEANUS FLAME2, NOVA2, THUNDER2)
+const ITEMS = [
+  { id:'america',   name:'AMERICA RING',        price:18000, cat:'Misceláneo', img:'AMERICA RING.jpg',        color:'#4ecdc4' },
+  { id:'aries',     name:'ARIES',               price:12000, cat:'Misceláneo', img:'ARIES.jpg',               color:'#4ecdc4' },
+  { id:'blazer',    name:'BLACK BLAZER',        price:12500, cat:'Misceláneo', img:'BLACK BLAZER.jpg',        color:'#4ecdc4' },
+  { id:'crossbow',  name:'BLACK CROSSBOW',      price:4500,  cat:'Misceláneo', img:'BLACK CROSSBOW.jpg',      color:'#4ecdc4' },
+  { id:'icewind',   name:'BLACK ICEWIND',       price:11000, cat:'Misceláneo', img:'BLACK ICEWIND.jpg',       color:'#4ecdc4' },
+  { id:'panzer',    name:'BLACK PANZER',        price:6000,  cat:'Misceláneo', img:'BLACK PANZER.jpg',        color:'#4ecdc4' },
+  { id:'dragon',    name:'DRAGON',              price:26000, cat:'Misceláneo', img:'DRAGON.jpg',              color:'#4ecdc4' },
+  { id:'gemini',    name:'GEMINI S CLASS',      price:12000, cat:'Misceláneo', img:'GEMINI S CLASS.jpg',      color:'#4ecdc4' },
+  { id:'golem',     name:'GOLEM',               price:20000, cat:'Misceláneo', img:'GOLEM.jpg',               color:'#4ecdc4' },
+  { id:'insane',    name:'INSANE ADVANCE',      price:18000, cat:'Misceláneo', img:'INSANE ADVANCE.jpg',      color:'#4ecdc4' },
+  { id:'iron_golem',name:'IRON GOLEM',          price:22000, cat:'Misceláneo', img:'IRON GOLEM.jpg',          color:'#4ecdc4' },
+  { id:'taurus',    name:'TAURUS',              price:12000, cat:'Misceláneo', img:'TAURUS.jpg',              color:'#4ecdc4' },
+  { id:'d_arm',     name:'DAMNED(H) ARMOR',     price:5000,  cat:'Swordman',   img:'DAMNED(H) ARMOR.jpg',     color:'#b06cff' },
+  { id:'d_arm_p',   name:'DAMNED(H) ARMS',      price:5000,  cat:'Swordman',   img:'DAMNED(H) ARMS.jpg',      color:'#b06cff' },
+  { id:'d_hel',     name:'DAMNED(H) HELMET',    price:5000,  cat:'Swordman',   img:'DAMNED(H) HELMET.jpg',    color:'#b06cff' },
+  { id:'d_pri',     name:'DAMNED(H) PRIMARIA',  price:5000,  cat:'Swordman',   img:'DAMNED(H) PRIMARIA.jpg',  color:'#b06cff' },
+  { id:'d_sec',     name:'DAMNED(H) SECUNDARIA',price:5000,  cat:'Swordman',   img:'DAMNED(H) SECUNDARIA.jpg',color:'#b06cff' },
+  { id:'d_sho',     name:'DAMNED(H) SHOULDER',  price:5000,  cat:'Swordman',   img:'DAMNED(H) SHOULDER.jpg',  color:'#b06cff' },
+  { id:'o_fla',     name:'OCEANUS FLAME',       price:5000,  cat:'Swordman',   img:'OCEANUS FLAME.jpg',       color:'#b06cff' },
+  { id:'o_nov',     name:'OCEANUS NOVA',        price:5000,  cat:'Swordman',   img:'OCEANUS NOVA.jpg',        color:'#b06cff' },
+  { id:'o_thu',     name:'OCEANUS THUNDER',     price:5000,  cat:'Swordman',   img:'OCEANUS THUNDER.jpg',     color:'#b06cff' },
+  { id:'o_fla2',    name:'OCEANUS FLAME',       price:5000,  cat:'Swordman',   img:'OCEANUS FLAME2.jpg',      color:'#b06cff' },
+  { id:'o_nov2',    name:'OCEANUS NOVA',        price:5000,  cat:'Swordman',   img:'OCEANUS NOVA2.jpg',       color:'#b06cff' },
+  { id:'o_thu2',    name:'OCEANUS THUNDER',     price:5000,  cat:'Swordman',   img:'OCEANUS THUNDER2.jpg',    color:'#b06cff' },
+];
+
+// Perú = UTC-5 → sumamos 5h a UTC para representar medianoche Peru
+const EVENT_START = new Date('2026-05-05T05:00:00Z');
+const EVENT_END   = new Date('2026-06-04T04:59:59Z');
+
+let bonusCreatures = 3;
+let quinteroMult   = 1;
+let initialPoints  = 0;
+let selectedItems  = [];
+let currentFilter  = 'Todos';
+
+// ── TIME ────────────────────────────────────────────────────────────────────
+function getTimeData() {
+  const now  = new Date();
+  const elMs = now - EVENT_START;
+  const remMs= EVENT_END - now;
+  return {
+    now,
+    daysElapsed:   Math.max(0, Math.floor(elMs  / 86400000)),
+    daysRemaining: Math.max(0, Math.ceil(remMs  / 86400000)),
+    isEnded: now > EVENT_END,
+  };
+}
+
+function ptsPerWin() {
+  // El multiplicador solo afecta el punto base de victoria
+  // Las crías siempre suman fijo: +2 por cada una
+  return (1 * quinteroMult) + (bonusCreatures * 2);
+}
+
+// ── RECALCULATE ──────────────────────────────────────────────────────────────
+function recalculate() {
+  initialPoints = parseInt(document.getElementById('initialPoints').value) || 0;
+  const { daysElapsed, daysRemaining, isEnded } = getTimeData();
+
+  const totalNeeded = selectedItems.reduce((a,i) => a + i.price, 0);
+  const remaining   = Math.max(0, totalNeeded - initialPoints);
+  const ppw         = ptsPerWin();
+  const totalWins   = Math.ceil(remaining / ppw);
+  const dailyWins   = daysRemaining > 0 ? Math.ceil(totalWins / daysRemaining) : 0;
+
+  // header
+  document.getElementById('daysRemaining').innerHTML = `${daysRemaining} <small>/ 30</small>`;
+  document.getElementById('totalWins').textContent   = totalWins.toLocaleString();
+
+  // pts per win
+  document.getElementById('ptsPerWin').textContent  = ppw;
+  document.getElementById('footerPts').textContent  = ppw;
+
+  // goal box
+  document.getElementById('dailyWins').textContent  = dailyWins;
+  document.getElementById('ptRemaining').textContent= remaining.toLocaleString();
+  document.getElementById('daysLeft').textContent   = `${daysRemaining} / 30`;
+  document.getElementById('todayDay').textContent   = daysElapsed + 1;
+
+  const goalBox = document.getElementById('goalBox');
+  if (isEnded) {
+    goalBox.classList.add('ended');
+    document.getElementById('goalDetails').style.display = 'none';
+    document.getElementById('endedBanner').style.display = 'block';
+  } else {
+    goalBox.classList.remove('ended');
+    document.getElementById('goalDetails').style.display = 'block';
+    document.getElementById('endedBanner').style.display = 'none';
+  }
+
+  // roadmap
+  renderRoadmap(daysElapsed, dailyWins);
+}
+
+// ── CLOCK ────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const t = new Date();
+  document.getElementById('clock').textContent =
+    t.toLocaleTimeString('es-PE', { hour:'2-digit', minute:'2-digit', timeZone:'America/Lima' });
+  recalculate();
+}
+updateClock();
+setInterval(updateClock, 60000);
+
+// ── QUINTERO ─────────────────────────────────────────────────────────────────
+function onQuintero(v) {
+  quinteroMult = parseInt(v);
+  document.getElementById('quinteroVal').textContent = 'x' + quinteroMult;
+  recalculate();
+}
+
+// ── CREATURES ────────────────────────────────────────────────────────────────
+function setCreatures(n) {
+  bonusCreatures = n;
+  document.querySelectorAll('.creature-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === n);
+  });
+  recalculate();
+}
+
+// ── FILTER ───────────────────────────────────────────────────────────────────
+function setFilter(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    b.className = 'filter-btn';
+  });
+  if (cat === 'Swordman') btn.classList.add('active-sword');
+  else btn.classList.add('active-misc');
+  renderCatalog();
+}
+
+// ── CATALOG ──────────────────────────────────────────────────────────────────
+function renderCatalog() {
+  const grid = document.getElementById('cardGrid');
+  const filtered = currentFilter === 'Todos' ? ITEMS : ITEMS.filter(i => i.cat === currentFilter);
+  grid.innerHTML = filtered.map(item => {
+    const sw = item.cat === 'Swordman';
+    const imgPath = 'images/' + item.img;
+    return `
+    <button class="item-card${sw?' sword':''}" onclick="addItem('${item.id}')">
+      <div class="card-img${sw?' sword':''}">
+        <div class="card-grid-overlay${sw?' sword':''}"></div>
+        <img src="${imgPath}" alt="${item.name}" class="card-real-img"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+        <span class="card-emoji-fallback" style="display:none">🎮</span>
+        <div class="card-corner${sw?' sword':''}"></div>
+      </div>
+      <div class="card-info">
+        <div class="card-name${sw?' sword':''}">${item.name}</div>
+        <div class="card-price">
+          <span class="red-dot"></span>
+          <span class="price-val">${item.price.toLocaleString()} <small>puntos</small></span>
+        </div>
+      </div>
+      <div class="card-plus${sw?' sword':''}">+</div>
+    </button>`;
+  }).join('');
+}
+renderCatalog();
+
+// ── ADD / REMOVE ─────────────────────────────────────────────────────────────
+function addItem(id) {
+  const item = ITEMS.find(i => i.id === id);
+  if (!item) return;
+  selectedItems.push({ ...item, iid: Date.now() + Math.random() });
+  renderSelected();
+  recalculate();
+}
+
+function removeItem(iid) {
+  selectedItems = selectedItems.filter(i => i.iid !== iid);
+  renderSelected();
+  recalculate();
+}
+
+function clearAll() {
+  selectedItems = [];
+  renderSelected();
+  recalculate();
+}
+
+function renderSelected() {
+  const grid  = document.getElementById('selectedGrid');
+  const empty = document.getElementById('emptyState');
+  const total = document.getElementById('selTotal');
+  const clr   = document.getElementById('clearBtn');
+  const cnt   = document.getElementById('selCount');
+
+  cnt.textContent = selectedItems.length;
+  const sum = selectedItems.reduce((a,i) => a + i.price, 0);
+
+  if (selectedItems.length === 0) {
+    empty.style.display = 'block';
+    grid.innerHTML = '';
+    total.style.display = 'none';
+    clr.style.display   = 'none';
+  } else {
+    empty.style.display = 'none';
+    total.style.display = 'inline';
+    clr.style.display   = 'inline';
+    total.textContent   = `Total: ${sum.toLocaleString()} pts`;
+
+    grid.innerHTML = selectedItems.map(item => `
+      <div class="sel-item">
+        <div class="sel-item-left">
+          <div class="sel-thumb">
+            <img src="images/${item.img}" alt="${item.name}"
+              style="width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid ${item.color}40"
+              onerror="this.style.display='none'" />
+          </div>
+          <div>
+            <div class="sel-name" style="color:${item.color}">${item.name}</div>
+            <div class="sel-cat">${item.cat}</div>
+          </div>
+        </div>
+        <div class="sel-right">
+          <span class="sel-price">${item.price.toLocaleString()}</span>
+          <button class="remove-btn" onclick="removeItem(${item.iid})">✕</button>
+        </div>
+      </div>`).join('');
+  }
+}
+renderSelected();
+
+// ── ROADMAP ──────────────────────────────────────────────────────────────────
+function renderRoadmap(daysElapsed, dailyWins) {
+  const wrap = document.getElementById('roadmapDays');
+  let html = '';
+  for (let d = 1; d <= 30; d++) {
+    const isPast  = d <= daysElapsed;
+    const isToday = d === daysElapsed + 1;
+    let cls = 'day-cell';
+    if (isPast)  cls += ' past';
+    if (isToday) cls += ' today';
+    html += `<div class="${cls}">
+      <div class="day-label">D${d}</div>
+      ${isPast
+        ? '<div class="day-check">✓</div>'
+        : `<div class="day-wins">${dailyWins}<br><span style="font-size:7px;opacity:0.6">W</span></div>`
+      }
+    </div>`;
+  }
+  wrap.innerHTML = html;
+}
+</script>
+</body>
+</html>
