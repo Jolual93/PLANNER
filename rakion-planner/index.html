@@ -310,7 +310,7 @@
       <div class="info-icon" style="color:#00e5cc">ℹ</div>
       <div>
         <div class="info-title">Resumen de Puntos</div>
-        <div class="info-text">Estás obteniendo <b id="footerPts" style="color:#00e5cc">7</b> pts por victoria con tus ajustes actuales.</div>
+        <div class="info-text">Base: <b id="footerPts" style="color:#00e5cc">7</b> pts por victoria. Fórmula: (1 × multiplicador) + (crías × 2).</div>
       </div>
     </div>
     <div class="info-card">
@@ -386,7 +386,9 @@ function getTimeData() {
 }
 
 function ptsPerWin() {
-  return (1 + bonusCreatures * 2) * quinteroMult;
+  // El multiplicador solo afecta el punto base de victoria
+  // Las crías siempre suman fijo: +2 por cada una
+  return (1 * quinteroMult) + (bonusCreatures * 2);
 }
 
 // ── RECALCULATE ──────────────────────────────────────────────────────────────
